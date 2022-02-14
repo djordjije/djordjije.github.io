@@ -29,12 +29,11 @@ function draw() {
   // Text clouds
   textSize(40);
   fill('white');
-  text('heat', 10, 50);
-  text('waves', 80, 100);
-  text('rising', 370, 50);
-  text('seas', 400, 100);
-  text('intense', 150, 170);
-  text('storms', 300, 220);
+  text('hoʻololi i ke aniau', 10, 50); // climate change
+  text('luku', 100, 110); // destruction
+  text('poino', 350, 110); // calamity
+  text('hoʻohekili', 150, 170); // threatening storms
+  text('ʻIlikai', 400, 220); // sea level
   
   // Sand Beach
   fill(220, 192, 139);
