@@ -6,6 +6,11 @@
 
 let yoff = 0.0; // 2nd dimension of perlin noise
 
+let myFont;
+function preload() {
+  myFont = loadFont('cloudstorm.ttf');
+}
+
 // Variables for the circles around the sun.
 var radius = 40;
 var angle = 0;
@@ -15,10 +20,21 @@ var centerY = 70;
 
 function setup() {
   createCanvas(710, 400);
+  textFont(myFont);
 }
 
 function draw() {
   background(168,255,255); // Light blue sky.
+  
+  // Text clouds
+  textSize(40);
+  fill('white');
+  text('heat', 10, 50);
+  text('waves', 80, 100);
+  text('rising', 370, 50);
+  text('seas', 400, 100);
+  text('intense', 150, 170);
+  text('storms', 300, 220);
   
   // Sand Beach
   fill(220, 192, 139);
