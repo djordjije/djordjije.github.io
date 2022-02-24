@@ -1,0 +1,31 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+canvas {
+  display: block;
+}
+.overlay {
+  position: absolute;
+  top: 100;
+  padding: 2em;
+}
+
+.fontStyle1 {
+  color: 'green';
+  font-size: 1.5em;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.fontStyle2 {
+  color: 'purple';
+  font-size: 3em;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+.fontStyle3 {
+  color: 'blue';
+  font-size: 5em;
+  font-family: 'Times New Roman', Times, serif;
+}
