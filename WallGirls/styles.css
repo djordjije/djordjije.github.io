@@ -10,6 +10,7 @@
     max-width: 900px;
     margin: 0 auto;
     justify-items:center;
+    margin-bottom: 70px;
   }
   .header {
     padding:15px;
@@ -17,16 +18,18 @@
     margin-bottom:15px;
   }
   .header-img {
-      width: 60%;
+      width: 90%;
   }
   .img-container {
     margin-bottom: 5px;
     overflow:auto;
     display:flex; 
     align-items: flex-start;
-    flex-direction:row; 
+    flex-direction:row;
+    flex-wrap: wrap;
     justify-content:center;
     height:80%;
+    overflow: hidden;
 }
   .img-column {
     margin: 4px;
@@ -41,6 +44,40 @@
     width: 20%;
   }
   
+  #img1 {
+    order: 1;
+  }
+  #img2 {
+    order: 2;
+  }
+  #img3 {
+    order: 3;
+  }
+  #img4 {
+    order: 4;
+  }
+  #img5 {
+    order: 5;
+  }
+  #img6 {
+    order: 6;
+  }
+  #img7 {
+    order: 7;
+  }
+  #img8 {
+    order: 8;
+  }
+  #img9 {
+    order: 9;
+  }
+  #img10 {
+    order: 10;
+  }
+  #img11 {
+    order: 11;
+  }
+  
   @media only screen and (max-width: 700px) {
     /* For mobile phones: */
     .header-img {
@@ -51,12 +88,50 @@
     }    
     .img-container {
       flex-direction:column;
-      height:"50%";
+      align-items: center;
+      /*height:"50%";*/
+    }
+    .img-container img {
+      width: 80%;
     }
     .button {
-        width: 40%;
+        width: 40% !important;
     }
     .opensea {
-      width: 40%;
+      width: 40% !important;
+    }
+
+    #img1 {
+      order: 4;
+    }
+    #img2 {
+      order: 2;
+    }
+    #img3 {
+      order: 3;
+    }
+    #img4 {
+      order: 1;
+    }
+    #img5 {
+      order: 7;
+    }
+    #img6 {
+      order: 8;
+    }
+    #img7 {
+      order: 9;
+    }
+    #img8 {
+      order: 10;
+    }
+    #img9 {
+      order: 11;
+    }
+    #img10 {
+      order: 5;
+    }
+    #img11 {
+      order: 6;
     }
   }
