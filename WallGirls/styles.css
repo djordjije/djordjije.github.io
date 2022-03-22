@@ -20,6 +20,8 @@
       width: 60%;
   }
   .img-container {
+    background-color: aqua;
+    margin-bottom: 5px;
     overflow:auto;
     display:flex; 
     align-items: flex-start;
@@ -28,6 +30,8 @@
     height:80%;
 }
   .img-column {
+    background-color: antiquewhite;
+    margin: 4px;
     display: inline-block;
     width: 30%;
     text-align: center;
