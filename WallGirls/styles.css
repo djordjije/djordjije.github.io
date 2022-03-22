@@ -4,7 +4,7 @@
   .body {
     font-family:Verdana;
     color:#aaaaaa;
-    background-image: url('./wallbg.png');
+    background-image: url('./images/wallbg.png');
     background-attachment: fixed;
     background-size: cover;
     max-width: 900px;
