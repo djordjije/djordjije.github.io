@@ -20,6 +20,7 @@
       width: 60%;
   }
   .img-container {
+    background-color: aqua;
     margin-bottom: 5px;
     overflow:auto;
     display:flex; 
@@ -29,17 +30,18 @@
     height:80%;
 }
   .img-column {
+    background-color: antiquewhite;
     margin: 4px;
     display: inline-block;
     width: 30%;
     text-align: center;
   }
+  .img-col-featured {
+      order: 0;
+  }
   .button {
       width: 70%;
-  }
-  .opensea {
-    width: 20%;
-  }
+  } 
   
   @media only screen and (max-width: 700px) {
     /* For mobile phones: */
@@ -53,10 +55,10 @@
       flex-direction:column;
       height:"50%";
     }
+    .img-col-featured {
+        order: -1;
+    }
     .button {
         width: 40%;
-    }
-    .opensea {
-      width: 40%;
-    }
+    } 
   }
