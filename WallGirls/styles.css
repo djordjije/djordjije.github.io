@@ -4,14 +4,12 @@
   .body {
     font-family:Verdana;
     color:#aaaaaa;
-    height: 100%;
-    min-height: 100%;
     display: flex;
     flex-direction: column;
     background-image: url('./images/wallbg.png');
     background-attachment: fixed;
     background-size: cover;
-    max-width: 750px;
+    max-width: 800px;
     margin: 0 auto;
     justify-items:center;
     margin-bottom: 50px;
@@ -24,7 +22,6 @@
       width: 90%;
   }
   .img-container {
-    height: 80vh;
     overflow:auto;
     display:flex; 
     align-items: flex-start;
@@ -46,6 +43,8 @@
     width: 20%;
   }
   
+  /* These tags hold the order of the images.
+     Unique order needed for mobile version. */
   #img1 {
     order: 1;
   }
@@ -57,21 +56,27 @@
   }
   #img4 {
     order: 4;
+    flex: 1;
   }
   #img5 {
     order: 5;
+    flex: 1;
   }
   #img6 {
     order: 6;
+    flex: 1;
   }
   #img7 {
     order: 7;
+    flex: 1;
   }
   #img8 {
     order: 8;
+    flex: 1;
   }
   #img9 {
     order: 9;
+    flex: 1;
   }
   #img10 {
     order: 10;
@@ -103,6 +108,7 @@
       width: 40% !important;
     }
 
+    /* Change the ordering of photos in mobile version */
     #img1 {
       order: 4;
     }
