@@ -7,7 +7,7 @@
     background-image: url('./images/wallbg.png');
     background-attachment: fixed;
     background-size: cover;
-    max-width: 900px;
+    max-width: 750px;
     margin: 0 auto;
     justify-items:center;
     margin-bottom: 70px;
@@ -21,7 +21,6 @@
       width: 90%;
   }
   .img-container {
-    margin-bottom: 5px;
     overflow:auto;
     display:flex; 
     align-items: flex-start;
