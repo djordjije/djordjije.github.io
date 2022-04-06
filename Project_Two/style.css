@@ -10,6 +10,7 @@ canvas {
   position:absolute;
   top: 620px;
   width: 680px;
+  background-image: linear-gradient(lime, yellow, orange);
   border-style: solid;
   border-width: medium;
   border-radius: 1em;
