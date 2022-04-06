@@ -1,0 +1,39 @@
+//////////////////
+// Introduction //
+//////////////////
+
+My project focuses on climate change, and specifically rising sea levels. 
+The main concept that I will use to explore this topic is RCPs, which is
+short for Representative Concentration Pathways.
+
+I got the idea while I was taking an earth and environmental sciences class
+last semester. While I was always interested in climate change, it was
+the first time I discovered the topic of RCPs and how relevant they are now
+to the future of the planet and human societies. This is the one thing that
+stuck with me after taking the class.
+
+They are basically different scenarios that the earth and humans could face
+by year 2100 depending on the set of policies and actions that we decide to
+take now and on the level of GHGs. Whenever we ask ourselves a specific 
+question about what specific thing would happen to the planet that is related
+to climate change, RCPs help to tackle this question by offering multiple
+scenarios.
+
+
+///////////////////////
+// Research Question //
+///////////////////////
+
+By how much will sea levels rise by 2100?
+
+Even though this question seems simple, it is actually difficult to answer
+because there are a lot of variables that come into play. And depending on
+how humans form their policies and how fast energy technologies advance, 
+the answer can be very different. In order to accommodate the different
+scenarios, I will use RCPs to answer the question. 
+
+
+/////////////////
+// Works Cited //
+/////////////////
+
