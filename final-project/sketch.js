@@ -6,6 +6,24 @@ Example code for setting up ground from height map.
 https://doc.babylonjs.com/divingDeeper/mesh/creation/set/height_map
 */
 
+// Class to build multiple trees
+// let tree = class {
+//     constructor(root, filename) {
+//         this.root = root;
+//         this.filename = filename;
+//     }
+
+//     build(xOff, yOff, zOff) {
+//         let treeObj = placeObject(root, filename, new BABYLON.Vector3(xOff, yOff, zOff), scene, 0.1, new BABYLON.Vector3(0, Math.PI, 0));
+//     }
+// }
+
+// function buildTree(xOff, yOff, zOff) {
+//     var treeObj = placeObject('./', 'tree_obj.obj', new BABYLON.Vector3(xOff, yOff, zOff), scene, 0.1, new BABYLON.Vector3(0, Math.PI, 0));
+//     return treeObj;
+// }
+
+
 var canvas = document.getElementById("renderCanvas");
 
 var startRenderLoop = function (engine, canvas) {
@@ -39,12 +57,6 @@ var createScene = function () {
     // Default intensity is 1. Let's dim the light a small amount
     light.intensity = 0.7;
 
-    // Our built-in 'sphere' shape.
-    var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 2, segments: 32}, scene);
-
-    // Move the sphere upward 1/2 its height
-    sphere.position.y = 1;
-
     // Our built-in 'ground' shape.
     //var ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 6, height: 6}, scene);
 
@@ -53,9 +65,20 @@ var createScene = function () {
      groundMaterial.diffuseTexture = new BABYLON.Texture("Diffuse.png", scene);
 
     var ground = BABYLON.MeshBuilder.CreateGroundFromHeightMap("gdhm", "./Height-Map.png", {
-        width: 200, height: 0, subdivisions: 250, maxHeight: 10, minHeight: 0
+        width: 20, height: 1.5, subdivisions: 250, maxHeight: 10, minHeight: 0
     }, scene);
     ground.material = groundMaterial;
+
+    
+
+    // Object from TurboSquid
+    var tree = placeObject('./', 'tree_obj.obj', new BABYLON.Vector3(0, 3.5, -2), scene, 0.1, new BABYLON.Vector3(0, Math.PI, 0));
+    var tree2 = placeObject('./', 'tree_obj.obj', new BABYLON.Vector3(2, 3.5, 0), scene, 0.1, new BABYLON.Vector3(0, Math.PI, 0));
+    var tree3 = placeObject('./', 'tree_obj.obj', new BABYLON.Vector3(-2, 3.5, -1), scene, 0.1, new BABYLON.Vector3(0, Math.PI, 0));
+
+    //var trees = new tree('./', 'tree_obj.obj');
+    //trees.build(2, 4, 0);
+    
 
     return scene;
 };
