@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+
+
+<head>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="https://d3js.org/d3.v6.js"></script>
+    <script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
+</head>
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+<body>
+    <h2>Narrative Visualization Project</h2>
+    <div id="main">
+        <h2>CO2 Emissions Breakdown by Country</h2>
+        <text>Although the per capita world average lies between 4-5 metric tons, there is</text> 
+        <text>a large discrepancy in emissions among the member nations.</text>
+        <br>
+        <text>For example, Afghanistan's per capita emissions have not exceeded 1 metric ton,</text>
+        <text>Whereas Qatar's per capita average was at one point above 47 metric tons. </text>
+        <br>
+        <text>Another interesting difference to note is the trend direction of CO2 emissions.</text>
+        <text>For example, while China's emissions have been steadily rising, USA's have been decreasing.</text>
+        <div id="tooltip"></div>
+    </div>
+    <div id="footer">
+        <a href="./index.html"><button>Previous</button></a>
+        
+        <select name="country-selection" id="country-select">
+            <option value="">--Please choose an option--</option>
+          </select>
+      
+
+        <a href="./index3.html"><button>Next</button></a>
+    </div>
+    
+</body>
+
+
+<script>
+
+    let csv_data;
+
+    d3.csv('country-co2-per-capita-series.csv').then(data => {
+        const dropdown = document.getElementById("country-select");
+        dropdown.addEventListener("change", handleDropdownChange)
+
+        let country_list = []
+
+        data.forEach(d => {
+            d.Year = Number(d.Year);
+            d.CO2_emissions = Number(d.CO2_emissions);
+
+            if (!country_list.includes(d.Country)) {
+                country_list.push(d.Country)
+                let opt = document.createElement("option");
+                opt.value = d.Country;
+                opt.innerHTML = d.Country;
+                dropdown.appendChild(opt);
+            } 
+        })
+
+        csv_data = data
+
+        dropdown.selectedIndex = 1
+
+        let country_data = [];
+
+        csv_data.forEach(d => {
+            if (d.Country === dropdown.value) {
+                country_data.push(d)
+            }
+        })
+
+        const height = 450;
+        const chart = d3.select("#main").append("svg")
+        .attr("width", 600)
+        .attr("height", 450)
+        .append("g")
+        .attr("transform", `translate(50, 50)`)
+
+        const min = d3.min(country_data, d => d.CO2_emissions)
+        const max = d3.max(country_data, d => d.CO2_emissions)
+
+        let highest_reading = country_data.reduce((max, country) => max.CO2_emissions > country.CO2_emissions ? max : country)
+
+        const x = d3.scaleLinear()
+            .domain([2000, 2020])
+            .range([0, 500])
+        
+        const y = d3.scaleLinear()
+            .domain([min, max])
+            .range([350, 0])
+        
+        const bottomAxis = d3.axisBottom(x).tickFormat(d3.format("d"))
+        chart.append("g")
+            .attr("class", "bottom axis")
+            .attr("transform", `translate(0, 350)`)
+            .call(bottomAxis)
+        
+        chart.append("text")
+            .attr("class", "x axis-label label")
+            .attr("x", 500 / 2)
+            .attr("text-anchor", "middle")
+            .attr("y", 380)
+            .text("Year")
+        
+        chart.append("text")
+            .attr("class", "y axis-label label")
+            .attr("y", -30)
+            .attr("x", -100)
+            .attr("text-anchor", "end")
+            .attr("transform", "rotate(-90)")
+            .text("metric tons per capita")
+        
+        const leftAxis = d3.axisLeft(y)
+        chart.append("g")
+            .attr("class", "left axis")
+            .call(leftAxis)
+        
+        chart.append("path")
+          .datum(country_data)
+          .attr("fill", "none")
+          .attr("stroke", "steelblue")
+          .attr("stroke-width", 2)
+          .attr("d", d3.line()
+            .x((d) => x(d.Year) )
+            .y((d) => y(d.CO2_emissions) )
+            )
+        
+        
+        const tooltip = d3.select("#tooltip")
+
+        const type = d3.annotationCalloutCircle
+        console.log(type)
+
+        const annotations = [
+        {
+          note: {
+            label: "Highest recorded: " + highest_reading.CO2_emissions.toFixed(2) + " metric tons",
+          },
+          connector: {
+            end: "arrow",
+            type: "elbow"
+          },
+          x: x(highest_reading.Year), //50,
+          y: y(highest_reading.CO2_emissions),
+          dy: 70,
+          dx: (highest_reading.Year > 2010 ? -100 : 100)
+        }].map(function(d){ d.color = "#545454"; return d})
+
+        const makeAnnotations = d3.annotation()
+            .type(d3.annotationLabel)
+            .annotations(annotations)
+
+        chart.append("g")
+        .attr("class", "annotation-group")
+        .call(makeAnnotations)
+
+        chart.selectAll("circle")
+            .data(country_data)
+            .enter()
+            .append("circle")
+            .attr("cx", d => x(d.Year))
+            .attr("cy", d => y(d.CO2_emissions))
+            .attr("r", 4)
+            .attr("fill", "steelblue")
+            .attr("z-index", 5)
+            .on("mouseover", handleMouseOver)
+            .on("mousemove", handleMouseMove)
+            .on("mouseout", handleMouseOut)
+
+        function handleMouseOver(event, d) {
+            tooltip.style("opacity", 0.8);
+            console.log("mouse went over")
+        }
+
+        function handleMouseMove(event, d) {
+            const [x, y] = d3.pointer(event);
+            tooltip
+                .html(`Year: ${d.Year}<br>Emissions per capita: ${d3.format(".2f")(d.CO2_emissions)}<br>(in metric tons)`)
+                .style("left", `${x - 130}px`)
+                .style("top", `${y + 100}px`);
+        }
+
+        function handleMouseOut(event, d) {
+            tooltip.style("opacity", 0);
+        }
+    })
+
+
+    function handleDropdownChange(event) {
+        console.log(event.target.value)
+        const dropdown = document.getElementById("country-select");
+        let country_data = [];
+
+        csv_data.forEach(d => {
+            if (d.Country === dropdown.value) {
+                country_data.push(d)
+            }
+        })
+
+
+        d3.select("svg").html("")
+
+        const height = 450;
+        const chart = d3.select("svg")
+        .attr("width", 600)
+        .attr("height", 450)
+        .append("g")
+        .attr("transform", `translate(50, 50)`)
+
+        const min = d3.min(country_data, d => d.CO2_emissions)
+        const max = d3.max(country_data, d => d.CO2_emissions)
+        
+        let highest_reading = country_data.reduce((max, country) => max.CO2_emissions > country.CO2_emissions ? max : country)
+
+        const x = d3.scaleLinear()
+            .domain([2000, 2020])
+            .range([0, 500])
+        
+        const y = d3.scaleLinear()
+            .domain([min, max])
+            .range([350, 0])
+        
+        const bottomAxis = d3.axisBottom(x).tickFormat(d3.format("d"))
+        chart.append("g")
+            .attr("class", "bottom axis")
+            .attr("transform", `translate(0, 350)`)
+            .call(bottomAxis)
+        
+        chart.append("text")
+            .attr("class", "x axis-label label")
+            .attr("x", 500 / 2)
+            .attr("text-anchor", "middle")
+            .attr("y", 380)
+            .text("Year")
+        
+        chart.append("text")
+            .attr("class", "y axis-label label")
+            .attr("y", -30)
+            .attr("x", -100)
+            .attr("text-anchor", "end")
+            .attr("transform", "rotate(-90)")
+            .text("metric tons per capita")
+        
+        const leftAxis = d3.axisLeft(y)
+        chart.append("g")
+            .attr("class", "left axis")
+            .call(leftAxis)
+        
+        chart.append("path")
+          .datum(country_data)
+          .attr("fill", "none")
+          .attr("stroke", "steelblue")
+          .attr("stroke-width", 2)
+          .attr("d", d3.line()
+            .x((d) => x(d.Year) )
+            .y((d) => y(d.CO2_emissions) )
+            )
+        
+        
+        const tooltip = d3.select("#tooltip")
+
+        const type = d3.annotationCalloutCircle
+        console.log(type)
+
+        const annotations = [
+        {
+          note: {
+            label: "Highest recorded: " + highest_reading.CO2_emissions.toFixed(2) + " metric tons",
+          },
+          connector: {
+            end: "arrow",
+            type: "elbow"
+          },
+          x: x(highest_reading.Year), //50,
+          y: y(highest_reading.CO2_emissions),
+          dy: 70,
+          dx: (highest_reading.Year > 2010 ? -100 : 100)
+        }].map(function(d){ d.color = "#545454"; return d})
+
+        const makeAnnotations = d3.annotation()
+            .type(d3.annotationLabel)
+            .annotations(annotations)
+
+        chart.append("g")
+        .attr("class", "annotation-group")
+        .call(makeAnnotations)
+
+        chart.selectAll("circle")
+            .data(country_data)
+            .enter()
+            .append("circle")
+            .attr("cx", d => x(d.Year))
+            .attr("cy", d => y(d.CO2_emissions))
+            .attr("r", 4)
+            .attr("fill", "steelblue")
+            .attr("z-index", 5)
+            .on("mouseover", handleMouseOver)
+            .on("mousemove", handleMouseMove)
+            .on("mouseout", handleMouseOut)
+
+        function handleMouseOver(event, d) {
+            tooltip.style("opacity", 0.8);
+            console.log("mouse went over")
+        }
+
+        function handleMouseMove(event, d) {
+            const [x, y] = d3.pointer(event);
+            tooltip
+                .html(`Year: ${d.Year}<br>Emissions per capita: ${d3.format(".2f")(d.CO2_emissions)}<br>(in metric tons)`)
+                .style("left", `${x - 130}px`)
+                .style("top", `${y + 100}px`);
+        }
+
+        function handleMouseOut(event, d) {
+            tooltip.style("opacity", 0);
+        }
+    }
+
+
+    
+    </script>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+
+
+<head>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="https://d3js.org/d3.v6.js"></script>
+    <script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
+</head>
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+<body>
+    <h2>Narrative Visualization Project</h2>
+    <div id="main">
+        <h2>World CO2 Emissions</h2>
+        <text>From the beginning of the new millenium, the amount of carbon dioxide</text> 
+        <text>produced by humans has been on a steady rise.</text>
+        <br>
+        <text>This trend has increased the rate of climate change, bringing with it more</text>
+        <text>extreme weather scenarios, economic impacts and new migration patterns.</text>
+        <br>
+        <text>While the world experienced a clear uptrend in the first decade of the new</text>
+        <text>millenium, this trend has started to buckle, possibly bringing some hope.</text>
+        <div id="tooltip"></div>
+    </div>
+    <div id="footer">
+        <button>Previous</button>
+        <a href="./index2.html"><button>Next</button></a>
+    </div>
+    
+</body>
+
+
+<script>
+
+    d3.csv('world-co2-per-capita-series.csv').then(data => {
+        console.log(data);
+        data.forEach(d => {
+            d.Year = Number(d.Year)
+            d.CO2_emissions = Number(d.CO2_emissions)
+        })
+
+        const height = 450
+
+        const chart = d3.select("#main").append("svg")
+        .attr("width", 600)
+        .attr("height", 450)
+        .append("g")
+        .attr("transform", `translate(50, 50)`)
+
+        const min = d3.min(data, d => d.CO2_emissions)
+        const max = d3.max(data, d => d.CO2_emissions)
+
+
+        const x = d3.scaleLinear()
+            .domain([2000, 2020])
+            .range([0, 500])
+        
+        const y = d3.scaleLinear()
+            .domain([3.7, max])
+            .range([350, 0])
+        
+        const bottomAxis = d3.axisBottom(x).tickFormat(d3.format("d"))
+        chart.append("g")
+            .attr("class", "bottom axis")
+            .attr("transform", `translate(0, 350)`)
+            .call(bottomAxis)
+        
+        chart.append("text")
+            .attr("class", "x axis-label label")
+            .attr("x", 500 / 2)
+            .attr("text-anchor", "middle")
+            .attr("y", 380)
+            .text("Year")
+        
+        chart.append("text")
+            .attr("class", "y axis-label label")
+            .attr("y", -30)
+            .attr("x", -100)
+            .attr("text-anchor", "end")
+            .attr("transform", "rotate(-90)")
+            .text("metric tons per capita")
+        
+        const leftAxis = d3.axisLeft(y)
+        chart.append("g")
+            .attr("class", "left axis")
+            .call(leftAxis)
+        
+        chart.append("path")
+          .datum(data)
+          .attr("fill", "none")
+          .attr("stroke", "steelblue")
+          .attr("stroke-width", 2)
+          .attr("d", d3.line()
+            .x((d) => x(d.Year) )
+            .y((d) => y(d.CO2_emissions) )
+            )
+        
+        
+        const tooltip = d3.select("#tooltip")
+
+        const type = d3.annotationCalloutCircle
+        console.log(type)
+
+        const annotations = [
+        {
+          type: d3.annotationCalloutCircle,
+          note: {
+            label: "Clear increase in emissions in early 2000s",
+            wrap: 190
+          },
+
+          subject: {
+            radius: 120
+          },
+          x: 210,
+          y: 150,
+          dy: 137,
+          dx: 102
+        }].map(function(d){ d.color = "#545454"; return d})
+
+        const makeAnnotations = d3.annotation()
+            .type(d3.annotationLabel)
+            .annotations(annotations)
+
+        chart.append("g")
+        .attr("class", "annotation-group")
+        .call(makeAnnotations)
+
+        chart.selectAll("circle")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("cx", d => x(d.Year))
+            .attr("cy", d => y(d.CO2_emissions))
+            .attr("r", 4)
+            .attr("fill", "steelblue")
+            .attr("z-index", 5)
+            .on("mouseover", handleMouseOver)
+            .on("mousemove", handleMouseMove)
+            .on("mouseout", handleMouseOut)
+
+        function handleMouseOver(event, d) {
+            tooltip.style("opacity", 0.8);
+            console.log("mouse went over")
+        }
+
+        function handleMouseMove(event, d) {
+            const [x, y] = d3.pointer(event);
+            tooltip
+                .html(`Year: ${d.Year}<br>Emissions per capita: ${d3.format(".2f")(d.CO2_emissions)}<br>(in metric tons)`)
+                .style("left", `${x - 130}px`)
+                .style("top", `${y + 100}px`);
+        }
+
+        function handleMouseOut(event, d) {
+            tooltip.style("opacity", 0);
+        }
+    })
+
+
+    
+    </script>

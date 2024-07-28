@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+
+
+<head>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="https://d3js.org/d3.v6.js"></script>
+    <script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
+</head>
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+<body>
+    <h2>Narrative Visualization Project</h2>
+    <div id="main">
+        <h2>Renewables vs Non-Renewables</h2>
+        <text>Recalling back from the previous data that was presented, we saw that per capita</text> 
+        <text>emissions started to taper off after the year 2010. There are a couple reasons:</text>
+        <br>
+        <text>1. As the years progress, more nations are turning towards renewable energy.</text>
+        <text>2. While some nations see a rise in CO2 emissions, others see a decrease.</text>
+        <br>
+        <text>Countries in the North Atlantic region saw a major increase in wind energy production,</text>
+        <text>While countries closer to the equator saw a significant increase in solar production.</text>
+        <div id="tooltip3"></div>
+    </div>
+    <div id="footer">
+        <a href="./index2.html"><button>Previous</button></a>
+        
+        <select name="year-selection" id="year-select">
+            <option value="">--Please choose an option--</option>
+          </select>
+
+    </div>
+    
+</body>
+
+
+<script>
+    const colorScaleWind = d3.scaleLinear()
+        .domain([0, 100])
+        .range(["gray", "blue"]);
+
+    const colorScaleSolar = d3.scaleLinear()
+        .domain([0, 100])
+        .range(["gray", "green"]);
+
+    const legendData = [
+        { label: "Solar", color: "green" },
+        { label: "Wind", color: "blue" }
+    ];
+
+    let csv_data;
+
+    d3.csv('electricity_stats.csv').then(data => {
+        const dropdown = document.getElementById("year-select");
+        dropdown.addEventListener("change", handleDropdownChange)
+
+        let year_list = []
+
+        data.forEach(d => {
+            d.Year = d.Year;
+            d.percent_wind = Number(d.percent_wind);
+            d.percent_solar = Number(d.percent_solar);
+            d.total_non_renewable = Number(d.total_non_renewable);
+            d.total_renewable = Number(d.total_renewable);
+
+            if (!year_list.includes(d.Year)) {
+                year_list.push(d.Year)
+                let opt = document.createElement("option");
+                opt.value = d.Year;
+                opt.innerHTML = d.Year;
+                dropdown.appendChild(opt);
+            } 
+        })
+
+        csv_data = data
+
+        dropdown.selectedIndex = 1
+
+        let year_data = [];
+
+        csv_data.forEach(d => {
+            if (d.Year === dropdown.value) {
+                year_data.push(d)
+            }
+        })
+
+
+        const height = 450;
+        const chart = d3.select("#main").append("svg")
+        .attr("width", 600)
+        .attr("height", 450)
+        .style("background-color", "white")
+        .append("g")
+        .attr("transform", `translate(50, 50)`)
+
+        const min_renewable = d3.min(year_data, d => d.total_renewable)
+        const max_renewable = d3.max(year_data, d => d.total_renewable)
+
+        const min_non_renewable = d3.min(year_data, d => d.total_non_renewable)
+        const max_non_renewable = d3.max(year_data, d => d.total_non_renewable)
+
+        const x = d3.scaleLog()
+            .domain([0.1, max_non_renewable])
+            .range([0, 500])
+            .base(10)
+        
+        const y = d3.scaleLog()
+            .domain([0.1, max_renewable])
+            .range([350, 0])
+            .base(10)
+        
+        const bottomAxis = d3.axisBottom(x)
+            .tickFormat(d3.format(".2s"))
+            .ticks(5)
+
+        chart.append("g")
+            .attr("class", "bottom axis")
+            .attr("transform", `translate(0, 350)`)
+            .call(bottomAxis)
+        
+        chart.append("text")
+            .attr("class", "x axis-label label")
+            .attr("x", 500 / 2)
+            .attr("text-anchor", "middle")
+            .attr("y", 390)
+            .text("Total Non-Renewable (GWh generated)")
+        
+        chart.append("text")
+            .attr("class", "y axis-label label")
+            .attr("y", -35)
+            .attr("x", -100)
+            .attr("text-anchor", "end")
+            .attr("transform", "rotate(-90)")
+            .text("Total Renewable (GWh generated)")
+        
+        const leftAxis = d3.axisLeft(y)
+            .tickFormat(d3.format(".2s"))
+            .ticks(5)
+
+        chart.append("g")
+            .attr("class", "left axis")
+            .call(leftAxis)      
+        
+        const tooltip = d3.select("#tooltip3")
+
+        chart.selectAll("circle")
+            .data(year_data)
+            .enter()
+            .append("circle")
+            .attr("cx", d => x(d.total_non_renewable == 0 ? 0.1 : d.total_non_renewable))
+            .attr("cy", d => y(d.total_renewable == 0 ? 0.1 : d.total_renewable))
+            .attr("r", 4)
+            .attr("fill", d => d.percent_solar > d.percent_wind ? colorScaleSolar(d.percent_solar) : colorScaleWind(d.percent_wind))
+            .attr("z-index", 5)
+            .on("mouseover", handleMouseOver)
+            .on("mousemove", handleMouseMove)
+            .on("mouseout", handleMouseOut)
+        
+        const legend = chart.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(-30, -30)`);
+        
+        // Add legend items
+        legend.selectAll("rect")
+            .data(legendData)
+            .enter()
+            .append("rect")
+            .attr("x", (d, i) => i * 60)
+            .attr("width", 15)
+            .attr("height", 15)
+            .attr("fill", d => d.color);
+
+        // Add labels
+        legend.selectAll("text")
+            .data(legendData)
+            .enter()
+            .append("text")
+            .attr("x", (d, i) => i * 60 + 20)
+            .attr("y", 12)
+            .text(d => d.label)
+            .attr("fill", "black");
+
+        function handleMouseOver(event, d) {
+            tooltip.style("opacity", 0.8);
+        }
+
+        function handleMouseMove(event, d) {
+            const [x, y] = d3.pointer(event);
+            tooltip
+                .html(`
+                        ${d.Country}<br>
+                        Tot. Non-Renewable: ${d3.format(".2s")(d.total_non_renewable)}<br>
+                        Tot. Renewable: ${d3.format(".2s")(d.total_renewable)}<br>
+                        % Wind: ${d3.format(".2f")(d.percent_wind)}<br>
+                        % Solar: ${d3.format(".2f")(d.percent_solar)}<br>
+                        (of generated GWh)`)
+                .style("left", `${x - 130}px`)
+                .style("top", `${y + 100}px`);
+        }
+
+        function handleMouseOut(event, d) {
+            tooltip.style("opacity", 0);
+        }
+    })
+
+
+    function handleDropdownChange(event) {
+        const dropdown = document.getElementById("year-select");
+        let year_data = [];
+
+        csv_data.forEach(d => {
+            if (d.Year === dropdown.value) {
+                year_data.push(d)
+            }
+        })
+
+
+        d3.select("svg").html("")
+
+        const height = 450;
+        const chart = d3.select("svg")
+        .attr("width", 600)
+        .attr("height", 450)
+        .append("g")
+        .attr("transform", `translate(50, 50)`)
+
+        const min_renewable = d3.min(year_data, d => d.total_renewable)
+        const max_renewable = d3.max(year_data, d => d.total_renewable)
+
+        const min_non_renewable = d3.min(year_data, d => d.total_non_renewable)
+        const max_non_renewable = d3.max(year_data, d => d.total_non_renewable)
+
+        const x = d3.scaleLog()
+            .domain([0.1, max_non_renewable])
+            .range([0, 500])
+            .base(10)
+        
+        const y = d3.scaleLog()
+            .domain([0.1, max_renewable])
+            .range([350, 0])
+            .base(10)
+        
+            const bottomAxis = d3.axisBottom(x)
+            .tickFormat(d3.format(".2s"))
+            .ticks(5)
+
+        chart.append("g")
+            .attr("class", "bottom axis")
+            .attr("transform", `translate(0, 350)`)
+            .call(bottomAxis)
+        
+        chart.append("text")
+            .attr("class", "x axis-label label")
+            .attr("x", 500 / 2)
+            .attr("text-anchor", "middle")
+            .attr("y", 390)
+            .text("Total Non-Renewable (GWh generated)")
+        
+        chart.append("text")
+            .attr("class", "y axis-label label")
+            .attr("y", -35)
+            .attr("x", -100)
+            .attr("text-anchor", "end")
+            .attr("transform", "rotate(-90)")
+            .text("Total Renewable (GWh generated)")
+        
+        const leftAxis = d3.axisLeft(y)
+            .tickFormat(d3.format(".2s"))
+            .ticks(5)
+
+        chart.append("g")
+            .attr("class", "left axis")
+            .call(leftAxis)      
+        
+        const tooltip = d3.select("#tooltip3")
+
+        chart.selectAll("circle")
+            .data(year_data)
+            .enter()
+            .append("circle")
+            .attr("cx", d => x(d.total_non_renewable == 0 ? 0.1 : d.total_non_renewable))
+            .attr("cy", d => y(d.total_renewable == 0 ? 0.1 : d.total_renewable))
+            .attr("r", 4)
+            .attr("fill", d => d.percent_solar > d.percent_wind ? colorScaleSolar(d.percent_solar) : colorScaleWind(d.percent_wind))
+            .attr("z-index", 5)
+            .on("mouseover", handleMouseOver)
+            .on("mousemove", handleMouseMove)
+            .on("mouseout", handleMouseOut)
+        
+            const legend = chart.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(-30, -30)`);
+        
+        // Add legend items
+        legend.selectAll("rect")
+            .data(legendData)
+            .enter()
+            .append("rect")
+            .attr("x", (d, i) => i * 60)
+            .attr("width", 15)
+            .attr("height", 15)
+            .attr("fill", d => d.color);
+
+        // Add labels
+        legend.selectAll("text")
+            .data(legendData)
+            .enter()
+            .append("text")
+            .attr("x", (d, i) => i * 60 + 20)
+            .attr("y", 12)
+            .text(d => d.label)
+            .attr("fill", "black");
+
+        function handleMouseOver(event, d) {
+            tooltip.style("opacity", 0.8);
+        }
+
+        function handleMouseMove(event, d) {
+            const [x, y] = d3.pointer(event);
+            tooltip
+                .html(`
+                        ${d.Country}<br>
+                        Tot. Non-Renewable: ${d3.format(".2s")(d.total_non_renewable)}<br>
+                        Tot. Renewable: ${d3.format(".2s")(d.total_renewable)}<br>
+                        % Wind: ${d3.format(".2f")(d.percent_wind)}<br>
+                        % Solar: ${d3.format(".2f")(d.percent_solar)}<br>
+                        (of generated GWh)`)
+                .style("left", `${x - 130}px`)
+                .style("top", `${y + 100}px`);
+        }
+
+        function handleMouseOut(event, d) {
+            tooltip.style("opacity", 0);
+        }
+    }
+
+
+    
+    </script>
